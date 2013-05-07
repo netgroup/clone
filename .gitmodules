@@ -1,0 +1,3 @@
+[submodule "confine"]
+	path = confine
+	url = http://git.confine-project.eu/confine.git
