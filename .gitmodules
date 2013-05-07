@@ -7,3 +7,6 @@
 [submodule "core-ccn"]
 	path = core-ccn
 	url = git@bitbucket.org:clauz/core-ccn.git
+[submodule "ccnx"]
+	path = ccnx
+	url = git@bitbucket.org:clauz/ccnx.git
