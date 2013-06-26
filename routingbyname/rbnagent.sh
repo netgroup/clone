@@ -102,15 +102,15 @@ for prefix in "${!PREFIX2NEXTHOP[@]}"; do
 				printandexec $CCNDC add "ccnx:/${prefix}" udp ${olsrnexthop}
 		elif [ "$fibnexthop" != "$olsrnexthop" ]; then
 				# the next hop from OLSR is different from the one in the FIB. Update it
-				printandexec $CCNDC del "ccnx:/${prefix}" udp ${fibnexthop}
 				printandexec $CCNDC add "ccnx:/${prefix}" udp ${olsrnexthop}
+				printandexec $CCNDC del "ccnx:/${prefix}" udp ${fibnexthop}
 		fi
 done
 for prefix in "${!CURRENTFIB[@]}"; do 
 		fibnexthop="${CURRENTFIB["$prefix"]}"
 		olsrnexthop="${PREFIX2NEXTHOP["$prefix"]}"
 		if [ -z "$olsrnexthop" ]; then
-				# this destination does not exist anymore
+				# this destination does not exist anymore. Remove it
 				printandexec $CCNDC del "ccnx:/${prefix}" udp ${fibnexthop}
 		fi
 done
