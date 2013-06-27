@@ -4,11 +4,13 @@
 DEBUG=0 #false
 CCNDC=/home/clauz/clone-git/ccnx/bin/ccndc
 
-declare -A FACE2DESTINATION
-declare -A CURRENTFIB
-declare -A IP2NEXTHOP
-declare -A PREFIX2IP
-declare -A PREFIX2NEXTHOP
+# from CCN
+declare -A face2destination 	# ccndstatus: face number --> nexthop
+declare -A CURRENTFIB			# ccndstatus: CCN prefix --> nexthop
+# from OLSR
+declare -A ip2nexthop			# txtinfo: IP destination --> nexthop
+declare -A prefix2ip 			# CCNinfo: CCN prefix --> IP destination
+declare -A PREFIX2NEXTHOP		# CCN prefix --> nexthop
 
 # print and execute a command
 printandexec () {
@@ -27,7 +29,7 @@ while read line; do
 				else
 						facenumber=$( echo $line | awk '{print $2}' )
 						destination=$( echo $line | grep -o "remote: [^ ]*" | awk '{print $2}' | cut -d ":" -f 1 )
-						FACE2DESTINATION["$facenumber"]="$destination"
+						face2destination["$facenumber"]="$destination"
 				fi
 		elif (( $forwarding )); then
 				if [ "${firstword:0:6}" != "ccnx:/" ]; then
@@ -37,7 +39,7 @@ while read line; do
 						face=$(echo $line | grep -o "face: [^ ]*" | awk '{print $2}')
 						# ignore "system" entries
 						if [ "$face" != "0" ] && [ "${prefix:0:11}" != '%C1.M.FACE/' ]; then
-								destination="${FACE2DESTINATION["$face"]}"
+								destination="${face2destination["$face"]}"
 								CURRENTFIB["$prefix"]="$destination"
 						fi
 				fi
@@ -49,7 +51,7 @@ while read line; do
 done < <( ccndstatus )
 
 echo "------- FIB -----------"
-for k in "${!CURRENTFIB[@]}"; do 
+for k in "${!CURRENTFIB[@]}"; do
 		echo "$k --> ${CURRENTFIB[$k]}"
 done
 echo "-----------------------"
@@ -59,12 +61,12 @@ echo "-----------------------"
 while read line; do
 	DESTINATION="$(echo $line | awk '{print $1}' | cut -d "/" -f 1 )"
 	NEXTHOP="$(echo $line | awk '{print $2}')"
-	IP2NEXTHOP["${DESTINATION}"]="$NEXTHOP"
+	ip2nexthop["${DESTINATION}"]="$NEXTHOP"
 done < <(wget http://127.0.0.1:2006/route -O - 2>/dev/null | grep -v "Table" | grep -v "Destination" | grep "...")
 
 if (( $DEBUG )); then
-		for k in "${!IP2NEXTHOP[@]}"; do 
-				echo "$k --> ${IP2NEXTHOP[$k]}"
+		for k in "${!ip2nexthop[@]}"; do
+				echo "$k --> ${ip2nexthop[$k]}"
 		done
 fi
 
@@ -72,29 +74,29 @@ fi
 while read line; do
 	NAME="$(echo $line | awk '{print $1}' | cut -d "/" -f 1 )"
 	DESTINATION="$(echo $line | awk '{print $2}')"
-	PREFIX2IP["${NAME}"]="$DESTINATION"
+	prefix2ip["${NAME}"]="$DESTINATION"
 done < <(wget http://127.0.0.1:2012 -O - 2>/dev/null | grep -v "Name" | grep "...")
 
 if (( $DEBUG )); then
-		for k in "${!PREFIX2IP[@]}"; do 
-				echo "$k --> ${PREFIX2IP[$k]}"
+		for k in "${!prefix2ip[@]}"; do
+				echo "$k --> ${prefix2ip[$k]}"
 		done
 fi
 
 # Compute the PREFIX2NEXTHOP table to associate names to IP next hops
-for key in "${!PREFIX2IP[@]}"; do 
-		DESTINATION="${PREFIX2IP["$key"]}"
-		PREFIX2NEXTHOP["$key"]="${IP2NEXTHOP[${DESTINATION}]}"
+for key in "${!prefix2ip[@]}"; do
+		DESTINATION="${prefix2ip["$key"]}"
+		PREFIX2NEXTHOP["$key"]="${ip2nexthop[${DESTINATION}]}"
 done
 
 echo "-------- OLSR ---------"
-for k in "${!PREFIX2NEXTHOP[@]}"; do 
+for k in "${!PREFIX2NEXTHOP[@]}"; do
 		echo "$k --> ${PREFIX2NEXTHOP[$k]}"
 done
 echo "-----------------------"
 
 # now synchronize the current CCN FIB with the PREFIX2NEXTHOP table computed from OLSR information
-for prefix in "${!PREFIX2NEXTHOP[@]}"; do 
+for prefix in "${!PREFIX2NEXTHOP[@]}"; do
 		fibnexthop="${CURRENTFIB["$prefix"]}"
 		olsrnexthop="${PREFIX2NEXTHOP["$prefix"]}"
 		if [ -z "$fibnexthop" ]; then
@@ -106,7 +108,7 @@ for prefix in "${!PREFIX2NEXTHOP[@]}"; do
 				printandexec $CCNDC del "ccnx:/${prefix}" udp ${fibnexthop}
 		fi
 done
-for prefix in "${!CURRENTFIB[@]}"; do 
+for prefix in "${!CURRENTFIB[@]}"; do
 		fibnexthop="${CURRENTFIB["$prefix"]}"
 		olsrnexthop="${PREFIX2NEXTHOP["$prefix"]}"
 		if [ -z "$olsrnexthop" ]; then
