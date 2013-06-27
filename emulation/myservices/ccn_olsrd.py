@@ -72,8 +72,9 @@ export CCNX_DIR=%s
 export SHELL=/bin/bash
 export HOME=$PWD
 export OLSRD_DIR=%s
-export PATH=$OLSR_DIR:$OLSR_DIR/olsrd:$PATH
+export PATH=$OLSRD_DIR:$PATH
 export PATH=$CCNX_DIR/bin:$PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OLSRD_DIR/lib/ccninfo:$OLSRD_DIR/lib/txtinfo:$OLSRD_DIR/lib/jsoninfo
 export CCN_LOCAL_SOCKNAME="/tmp/.ccnd.%s.sock"
 export CCND_KEYSTORE_DIRECTORY="/tmp/ccnd.keystore.%s"
 export CCND_LOG="/tmp/ccnd.%s.log"
@@ -92,11 +93,12 @@ alias ls='ls --color'
             cfg = """
 
 export CCNX_DIR=%s
-export OLSR_DIR=%s
+export OLSRD_DIR=%s
 export CCN_LOCAL_SOCKNAME="/tmp/.ccnd.%s.sock"
 export CCND_KEYSTORE_DIRECTORY="/tmp/ccnd.keystore.%s"
 export CCND_LOG="/tmp/ccnd.%s.log"
 export OLSR_INTERFACE="eth0"
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OLSRD_DIR/lib/ccninfo:$OLSRD_DIR/lib/txtinfo:$OLSRD_DIR/lib/jsoninfo
 
 printandexec() {
     echo "$@"
@@ -203,8 +205,9 @@ Hna4
 EOF
     fi
 
+    sleep 3
     # start olsrd
-    printandexec ${OLSR_DIR}/olsrd -f olsrd.conf -d 0
+    printandexec ${OLSRD_DIR}/olsrd -f olsrd.conf -d 0
     sleep 2
 
 }
