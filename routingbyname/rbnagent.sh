@@ -2,7 +2,9 @@
 
 #DEBUG=1 #true
 DEBUG=0 #false
-CCNDC=/home/clauz/clone-git/ccnx/bin/ccndc
+CCN_DIR=/home/clauz/clone-git/ccnx
+CCNDC=$CCN_DIR/bin/ccndc
+CCNDSTATUS=$CCN_DIR/bin/ccndstatus
 SLEEPINGTIME=10
 
 # print and execute a command
@@ -70,7 +72,7 @@ main () {
 				elif [ "$firstword" == "Forwarding" ]; then
 						forwarding=1 #true
 				fi
-		done < <( ccndstatus )
+		done < <( $CCNDSTATUS )
 
 		# sort the lists of next hops
 		for k in "${!CURRENTFIB[@]}"; do
