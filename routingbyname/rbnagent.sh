@@ -5,17 +5,36 @@ DEBUG=0 #false
 CCNDC=/home/clauz/clone-git/ccnx/bin/ccndc
 
 # from CCN
-declare -A face2destination 	# ccndstatus: face number --> nexthop
+declare -A face2nexthop			# ccndstatus: face number --> nexthop
 declare -A CURRENTFIB			# ccndstatus: CCN prefix --> nexthop
 # from OLSR
 declare -A ip2nexthop			# txtinfo: IP destination --> nexthop
-declare -A prefix2ip 			# CCNinfo: CCN prefix --> IP destination
-declare -A PREFIX2NEXTHOP		# CCN prefix --> nexthop
+declare -A PREFIX2NEXTHOPS		# CCN prefix --> nexthop
 
 # print and execute a command
 printandexec () {
 		echo "$@"
 		eval "$@"
+}
+
+sortstring () {
+		# sort a list of strings separated by space
+		# also render these unique
+		(
+		for i in $1; do
+				echo $i 
+		done
+		) | sort | uniq | tr "\\n" " " 
+}
+
+stripstring () {
+		echo $1 | sed 's/\ $//' | sed 's/^\ //'
+}
+
+stripsort () {
+		stripped=$( stripstring "$1" )
+		sorted=$( sortstring "$stripped" )
+		stripstring "$sorted"
 }
 
 # Get and parse the current CCN FIB
@@ -28,8 +47,8 @@ while read line; do
 						faces=0 #false
 				else
 						facenumber=$( echo $line | awk '{print $2}' )
-						destination=$( echo $line | grep -o "remote: [^ ]*" | awk '{print $2}' | cut -d ":" -f 1 )
-						face2destination["$facenumber"]="$destination"
+						nexthop=$( echo $line | grep -o "remote: [^ ]*" | awk '{print $2}' | cut -d ":" -f 1 )
+						face2nexthop["$facenumber"]="$nexthop"
 				fi
 		elif (( $forwarding )); then
 				if [ "${firstword:0:6}" != "ccnx:/" ]; then
@@ -39,8 +58,9 @@ while read line; do
 						face=$(echo $line | grep -o "face: [^ ]*" | awk '{print $2}')
 						# ignore "system" entries
 						if [ "$face" != "0" ] && [ "${prefix:0:11}" != '%C1.M.FACE/' ]; then
-								destination="${face2destination["$face"]}"
-								CURRENTFIB["$prefix"]="$destination"
+								nexthop="${face2nexthop["$face"]}"
+								# append the next hop
+								CURRENTFIB["$prefix"]="${CURRENTFIB["$prefix"]} $nexthop"
 						fi
 				fi
 		elif [ "$firstword" == "Faces" ]; then
@@ -49,6 +69,12 @@ while read line; do
 				forwarding=1 #true
 		fi
 done < <( ccndstatus )
+
+# sort the lists of next hops
+for k in "${!CURRENTFIB[@]}"; do
+		sortedlist=$( stripsort "${CURRENTFIB["$k"]}" )
+		CURRENTFIB["$k"]="$sortedlist"
+done
 
 echo "------- FIB -----------"
 for k in "${!CURRENTFIB[@]}"; do
@@ -74,46 +100,58 @@ fi
 while read line; do
 	NAME="$(echo $line | awk '{print $1}' | cut -d "/" -f 1 )"
 	DESTINATION="$(echo $line | awk '{print $2}')"
-	prefix2ip["${NAME}"]="$DESTINATION"
+	# Compute the PREFIX2NEXTHOPS table to associate names to IP next hops
+	PREFIX2NEXTHOPS["$NAME"]="${PREFIX2NEXTHOPS["$NAME"]} ${ip2nexthop["$DESTINATION"]}"
 done < <(wget http://127.0.0.1:2012 -O - 2>/dev/null | grep -v "Name" | grep "...")
 
-if (( $DEBUG )); then
-		for k in "${!prefix2ip[@]}"; do
-				echo "$k --> ${prefix2ip[$k]}"
-		done
-fi
-
-# Compute the PREFIX2NEXTHOP table to associate names to IP next hops
-for key in "${!prefix2ip[@]}"; do
-		DESTINATION="${prefix2ip["$key"]}"
-		PREFIX2NEXTHOP["$key"]="${ip2nexthop[${DESTINATION}]}"
+# sort the lists of next hops
+for k in "${!PREFIX2NEXTHOPS[@]}"; do
+		sortedlist=$( stripsort "${PREFIX2NEXTHOPS["$k"]}" )
+		PREFIX2NEXTHOPS["$k"]="$sortedlist"
 done
 
 echo "-------- OLSR ---------"
-for k in "${!PREFIX2NEXTHOP[@]}"; do
-		echo "$k --> ${PREFIX2NEXTHOP[$k]}"
+for k in "${!PREFIX2NEXTHOPS[@]}"; do
+		echo "$k --> ${PREFIX2NEXTHOPS[$k]}"
 done
 echo "-----------------------"
 
-# now synchronize the current CCN FIB with the PREFIX2NEXTHOP table computed from OLSR information
-for prefix in "${!PREFIX2NEXTHOP[@]}"; do
-		fibnexthop="${CURRENTFIB["$prefix"]}"
-		olsrnexthop="${PREFIX2NEXTHOP["$prefix"]}"
-		if [ -z "$fibnexthop" ]; then
-				# this prefix is not yet in the FIB. Add it
-				printandexec $CCNDC add "ccnx:/${prefix}" udp ${olsrnexthop}
-		elif [ "$fibnexthop" != "$olsrnexthop" ]; then
-				# the next hop from OLSR is different from the one in the FIB. Update it
-				printandexec $CCNDC add "ccnx:/${prefix}" udp ${olsrnexthop}
-				printandexec $CCNDC del "ccnx:/${prefix}" udp ${fibnexthop}
+# now synchronize the current CCN FIB with the PREFIX2NEXTHOPS table computed from OLSR information
+for prefix in "${!PREFIX2NEXTHOPS[@]}"; do
+		fibnexthops="${CURRENTFIB["$prefix"]}"
+		olsrnexthops="${PREFIX2NEXTHOPS["$prefix"]}"
+		if [ "$fibnexthops" != "$olsrnexthops" ]; then
+				# convert the lists of nexthops into handy arrays
+				declare -A ccnarray
+				for i in $fibnexthops; do
+						ccnarray["$i"]=1
+				done
+				declare -A olsrarray
+				for i in $olsrnexthops; do
+						olsrarray["$i"]=1
+				done
+				# add to the CCN fib the new nexthops
+				for nh in "${!olsrarray[@]}"; do
+						if [ -z ${ccnarray["$nh"]} ]; then
+								printandexec $CCNDC add "ccnx:/${prefix}" udp ${nh}
+						fi
+				done
+				# delete from the CCN fib the nexthops that aren't there anymore
+				for nh in "${!ccnarray[@]}"; do
+						if [ -z ${olsrarray["$nh"]} ]; then
+								printandexec $CCNDC del "ccnx:/${prefix}" udp ${nh}
+						fi
+				done
 		fi
 done
 for prefix in "${!CURRENTFIB[@]}"; do
-		fibnexthop="${CURRENTFIB["$prefix"]}"
-		olsrnexthop="${PREFIX2NEXTHOP["$prefix"]}"
-		if [ -z "$olsrnexthop" ]; then
+		fibnexthops="${CURRENTFIB["$prefix"]}"
+		olsrnexthops="${PREFIX2NEXTHOPS["$prefix"]}"
+		if [ -z "$olsrnexthops" ]; then
 				# this destination does not exist anymore. Remove it
-				printandexec $CCNDC del "ccnx:/${prefix}" udp ${fibnexthop}
+				for nh in $fibnexthops; do
+						printandexec $CCNDC del "ccnx:/${prefix}" udp ${nh}
+				done
 		fi
 done
 
