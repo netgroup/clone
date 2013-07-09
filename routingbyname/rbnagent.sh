@@ -3,7 +3,7 @@
 #DEBUG=1 #true
 DEBUG=0 #false
 CCN_DIR=/home/clauz/clone-git/ccnx
-CCNDC=$CCN_DIR/bin/ccndc
+CCNDC="$CCN_DIR/bin/ccndc -t 3600"
 CCNDSTATUS=$CCN_DIR/bin/ccndstatus
 SLEEPINGTIME=10
 
