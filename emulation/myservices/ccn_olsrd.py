@@ -75,15 +75,16 @@ class CcnOlsrService(CoreService):
     @classmethod
     def generateCcnOlsrEnv(cls, node, services, ccnx_dir, olsr_dir):
             cfg = """
-export CCNX_DIR=%s
+export CCNX_HOME=%s
 export SHELL=/bin/bash
 export HOME=$PWD
 export OLSRD_DIR=%s
 export PATH=$OLSRD_DIR:$PATH
-export PATH=$CCNX_DIR/bin:$PATH
+export PATH=$CCNX_HOME/bin:$PATH
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OLSRD_DIR/lib/ccninfo:$OLSRD_DIR/lib/txtinfo:$OLSRD_DIR/lib/jsoninfo
 export CCN_LOCAL_SOCKNAME="/tmp/.ccnd.%s.sock"
 export CCND_KEYSTORE_DIRECTORY="/tmp/ccnd.keystore.%s"
+export CCNX_DIR="$CCND_KEYSTORE_DIRECTORY"
 export CCND_LOG="/tmp/ccnd.%s.log"
 export TERM=vt100
 alias ls='ls --color'
@@ -99,10 +100,11 @@ alias ls='ls --color'
     def generateCcnOlsrConf(cls, node, services, ccnx_dir, olsr_dir, rbn_dir, start):
             cfg = """
 
-export CCNX_DIR=%s
+export CCNX_HOME=%s
 export OLSRD_DIR=%s
 export CCN_LOCAL_SOCKNAME="/tmp/.ccnd.%s.sock"
 export CCND_KEYSTORE_DIRECTORY="/tmp/ccnd.keystore.%s"
+export CCNX_DIR="$CCND_KEYSTORE_DIRECTORY"
 export CCND_LOG="/tmp/ccnd.%s.log"
 export RBN_DIR=%s
 export OLSR_INTERFACE="eth0"
@@ -224,7 +226,7 @@ ccnstart() {
     rm -vf $CCN_LOCAL_SOCKNAME
     rm -rvf $CCND_KEYSTORE_DIRECTORY
     mkdir -p $CCND_KEYSTORE_DIRECTORY
-	$CCNX_DIR/bin/ccndstart
+	$CCNX_HOME/bin/ccndstart
 }
 
 rbnstart() {
@@ -240,7 +242,7 @@ start() {
 }
 
 stop() {
-	$CCNX_DIR/bin/ccndstop
+	$CCNX_HOME/bin/ccndstop
 }
 
 """ % (ccnx_dir, olsr_dir, node.name, node.name, node.name, rbn_dir)
