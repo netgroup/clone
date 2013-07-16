@@ -22,6 +22,18 @@ addheadertoresource () {
 		echo $tmpfile
 }
 
+urlencode() {
+		local l=${#1}
+		for (( i = 0 ; i < l ; i++ )); do
+				local c=${1:i:1}
+				case "$c" in
+						[a-zA-Z0-9.~_-]) printf "$c" ;;
+						' ') printf + ;;
+						*) printf '%%%X' "'$c"
+				esac
+		done
+}
+
 WEBSITE_DIR="$1"
 
 if [ -z "$WEBSITE_DIR" ]; then
@@ -45,13 +57,14 @@ fi
 printandexec $CCNRM ccnx:/
 printandexec cd "${WEBSITE_DIR}/htdocs"
 for resource in $( $FIND . -type f ); do
-		resourcename=$( echo $resource | sed 's/^.\///' )
-		resourcefullname="ccnx:/${domain}/${resourcename}"
+		resourcename=$( echo $resource | sed 's/^.\//\//' )
+		urlencodedname=$( urlencode $resourcename )
+		resourcefullname="ccnx:/TestCCN/http/${domain}/${urlencodedname}"
 		newresource=$( addheadertoresource $resource )
-		printandexec $CCNPUTFILE -v -unversioned -local $resourcefullname $newresource
+		printandexec $CCNPUTFILE -v -local "$resourcefullname" "$newresource"
 		# special case: index.html
 		if [ "$resourcename" == "index.html" ]; then
-				printandexec $CCNPUTFILE -v -unversioned -local ccnx:/${domain}/ $newresource
+				printandexec $CCNPUTFILE -v -local "ccnx:/${domain}/" "$newresource"
 		fi
 		#rm $newresource
 done
