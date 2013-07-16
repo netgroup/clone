@@ -64,12 +64,12 @@ for resource in $( $FIND . -type f ); do
 		printandexec $CCNPUTFILE -v -local "$resourcefullname" "$newresource"
 		# special case: index.html
 		if [ "$resourcename" == "index.html" ]; then
-				printandexec $CCNPUTFILE -v -local "ccnx:/${domain}/" "$newresource"
+				printandexec $CCNPUTFILE -v -local "ccnx:/TestCCN/http/${domain}/%2F" "$newresource"
 		fi
 		#rm $newresource
 done
 
 # announce this domain through the OLSR CCNinfo plugin
-$WGET -q -O - "http://127.0.0.1:2012/reg/add/${domain}" 2>/dev/null
+$WGET -q -O - "http://127.0.0.1:2012/reg/add/TestCCN/http/${domain}" 2>/dev/null
 
 
