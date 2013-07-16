@@ -1,14 +1,25 @@
 #!/bin/bash
 
-CCNPUTFILE=/home/clauz/clone-git/ccnx/bin/ccnputfile
+OURCCNDIR=/home/clauz/clone-git/ccnx/
+CCNPUTFILE=${OURCCNDIR}/bin/ccnputfile
+CCNRM=${OURCCNDIR}/bin/ccnrm
 FIND=/usr/bin/find
 WGET=/usr/bin/wget
-WSAAS_INDEX_FILE=wsaas_index
 
 # print and execute a command
 printandexec () {
 		echo "$@"
 		eval "$@"
+}
+
+# generate a new file that includes the HTTP header
+addheadertoresource () {
+		resource="$1"
+		resourcesize=$( stat -c "%s" $resource)
+		mimetype=$( file --mime-type $resource | awk '{print $2}' )
+		tmpfile=$(tempfile -d /tmp/ -s ".wsaas")
+		echo -e "HTTP/1.1 200 OK\r\nContent-Type: $mimetype\r\nContent-Length: $resourcesize\r\n\r\n" | cat - "$resource" > $tmpfile
+		echo $tmpfile
 }
 
 WEBSITE_DIR="$1"
@@ -31,25 +42,19 @@ if [ -z "$domain" ]; then
 fi
 
 # load each file in the website htdocs directory into the local ccnr
+printandexec $CCNRM ccnx:/
 printandexec cd "${WEBSITE_DIR}/htdocs"
-printandexec rm -f /tmp/${WSAAS_INDEX_FILE}
-printandexec touch /tmp/${WSAAS_INDEX_FILE}
 for resource in $( $FIND . -type f ); do
 		resourcename=$( echo $resource | sed 's/^.\///' )
 		resourcefullname="ccnx:/${domain}/${resourcename}"
-		printandexec $CCNPUTFILE -v -unversioned -local $resourcefullname $resource
-		# put the info in the index
-		resourcesize=$( stat -c "%s" $resource)
-		mimetype=$( file --mime-type $resource | awk '{print $2}' )
-		echo "$resourcefullname $resourcesize $mimetype" >> /tmp/${WSAAS_INDEX_FILE}
+		newresource=$( addheadertoresource $resource )
+		printandexec $CCNPUTFILE -v -unversioned -local $resourcefullname $newresource
+		# special case: index.html
 		if [ "$resourcename" == "index.html" ]; then
-				printandexec $CCNPUTFILE -v -unversioned -local ccnx:/${domain}/ $resource
-				echo "ccnx:/${domain}/ $resourcesize $mimetype" >> /tmp/${WSAAS_INDEX_FILE}
+				printandexec $CCNPUTFILE -v -unversioned -local ccnx:/${domain}/ $newresource
 		fi
+		#rm $newresource
 done
-
-printandexec $CCNPUTFILE -v -unversioned -local ccnx:/${domain}/${WSAAS_INDEX_FILE} /tmp/${WSAAS_INDEX_FILE}
-#printandexec rm /tmp/${WSAAS_INDEX_FILE}
 
 # announce this domain through the OLSR CCNinfo plugin
 $WGET -q -O - "http://127.0.0.1:2012/reg/add/${domain}" 2>/dev/null
