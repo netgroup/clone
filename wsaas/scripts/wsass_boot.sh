@@ -18,7 +18,7 @@ addheadertoresource () {
 		resourcesize=$( stat -c "%s" $resource)
 		mimetype=$( file --mime-type $resource | awk '{print $2}' )
 		tmpfile=$(tempfile -d /tmp/ -s ".wsaas")
-		echo -e "HTTP/1.1 200 OK\r\nContent-Type: $mimetype\r\nContent-Length: $resourcesize\r\n\r\n" | cat - "$resource" > $tmpfile
+		echo -e "HTTP/1.1 200 OK\r\nContent-Type: $mimetype\r\nContent-Length: $resourcesize\r\n\r" | cat - "$resource" > $tmpfile
 		echo $tmpfile
 }
 
