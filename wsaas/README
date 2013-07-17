@@ -1,6 +1,6 @@
 ===============================================================================
-									 WSaaS
-					   Web Server as a Service over CCNX
+                                     WSaaS
+                       Web Server as a Service over CCNX
 ===============================================================================
 
 On all nodes, except client nodes, these should be running:
