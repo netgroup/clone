@@ -61,7 +61,7 @@ main () {
 								prefix="${firstword:6}"
 								face=$(echo $line | grep -o "face: [^ ]*" | awk '{print $2}')
 								# ignore "system" entries
-								if [ "$face" != "0" ] && [ "${prefix:0:11}" != '%C1.M.FACE/' ]; then
+								if [ "$face" != "0" ] && [ "${prefix:0:2}" != '%C' ] && [ "${prefix:0:9}" != 'ccnx.org/' ]; then
 										nexthop="${face2nexthop["$face"]}"
 										# append the next hop
 										CURRENTFIB["$prefix"]="${CURRENTFIB["$prefix"]} $nexthop"
