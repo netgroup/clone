@@ -3,6 +3,7 @@
 #DEBUG=1 #true
 DEBUG=0 #false
 CCN_DIR=/home/clauz/clone-git/ccnx
+NAMESFILE=HttpProxy.list
 CCNDC="$CCN_DIR/bin/ccndc -t 3600"
 CCNDSTATUS=$CCN_DIR/bin/ccndstatus
 SLEEPINGTIME=10
@@ -162,8 +163,16 @@ main () {
 		done
 }
 
+nameslist () {
+		# write a list of domains announced in the networks and put it into a file
+		tmpfile=$(tempfile -d /tmp/ -s ".wsaas")
+		wget -q -O - "http://127.0.0.1:2012/" | egrep -o "http/[^[:space:]/]*" | sed 's/^.*http\/\(.*\)/\1/' > $tmpfile
+		printandexec mv $tmpfile $NAMESFILE
+}
+
 while [ 1 ]; do
 		main
+		nameslist
 		sleep $SLEEPINGTIME
 done
 
