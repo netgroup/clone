@@ -1,0 +1,42 @@
+===============================================================================
+									 WSaaS
+					   Web Server as a Service over CCNX
+===============================================================================
+
+On all nodes, except client nodes, these should be running:
+ - ccnd 
+ - olsrd with ccninfo plug-in
+ - rbnagent.sh
+For details please refer to the CORE emulator service file:
+../emulation/myservices/ccn_olsrd.py
+
+On nodes hosting websites:
+ - start ccnr by just typing:
+    ccnr &
+ - upload and register the website with the wsaas_boot.sh script. e.g.
+    ./scripts/wsaas_boot.sh website_01/
+   The website_01 directory contains a wsaas.conf file that specifies the 
+   domain name associated to the content and an htdocs/ directory with the 
+   actual content
+
+On Internet gateway nodes:
+ - announce via CCNinfo that the node can reach external domains:
+    wget -q -O - "http://127.0.0.1:2012/reg/add/TestCCN/http"
+ - create a caching dir, e.g.
+    mkdir /tmp/proxycache
+ - go to the ccnx/apps/HttpProxy directory and start NetFetch
+    ./NetFetch -fsroot /tmp/proxycache
+
+On proxy nodes:
+ - go to the ccnx/apps/HttpProxy directory and start the modified HttpProxy:
+    ./HttpProxy -custom ~/HttpProxy.list -resolveHigh
+   the HttpProxy.list file should be updated by the rbnagent.sh script, which 
+   is assumed to be launched from the home directory
+
+On client nodes:
+ - configure a proxy node address, port 8080 as web proxy and try to fetch both
+   an internal and external domain.
+   For a quick test, wget can be ran directly on the proxy node:
+    http_proxy="http://127.0.0.1:8080" wget http://penguins.org/index.html -O -
+
+
