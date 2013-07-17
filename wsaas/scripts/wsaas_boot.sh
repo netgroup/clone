@@ -5,6 +5,7 @@ CCNPUTFILE=${OURCCNDIR}/bin/ccnputfile
 CCNRM=${OURCCNDIR}/bin/ccnrm
 FIND=/usr/bin/find
 WGET=/usr/bin/wget
+CCNROOT="CommunityCCN"
 
 # print and execute a command
 printandexec () {
@@ -59,17 +60,17 @@ printandexec cd "${WEBSITE_DIR}/htdocs"
 for resource in $( $FIND . -type f ); do
 		resourcename=$( echo $resource | sed 's/^.\//\//' )
 		urlencodedname=$( urlencode $resourcename )
-		resourcefullname="ccnx:/TestCCN/http/${domain}/${urlencodedname}"
+		resourcefullname="ccnx:/${CCNROOT}/http/${domain}/${urlencodedname}"
 		newresource=$( addheadertoresource $resource )
 		printandexec $CCNPUTFILE -v -local "$resourcefullname" "$newresource"
 		# special case: index.html
-		if [ "$resourcename" == "index.html" ]; then
-				printandexec $CCNPUTFILE -v -local "ccnx:/TestCCN/http/${domain}/%2F" "$newresource"
+		if [ "$resourcename" == "/index.html" ]; then
+				printandexec $CCNPUTFILE -v -local "ccnx:/${CCNROOT}/http/${domain}/%2F" "$newresource"
 		fi
 		#rm $newresource
 done
 
 # announce this domain through the OLSR CCNinfo plugin
-$WGET -q -O - "http://127.0.0.1:2012/reg/add/TestCCN/http/${domain}" 2>/dev/null
+$WGET -q -O - "http://127.0.0.1:2012/reg/add/${CCNROOT}/http/${domain}" 2>/dev/null
 
 
