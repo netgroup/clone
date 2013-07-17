@@ -102,7 +102,7 @@ main () {
 
 		# Read names from olsrd CCNinfo plug-in
 		while read line; do
-			NAME="$(echo $line | awk '{print $1}' | cut -d "/" -f 1 )"
+			NAME="$(echo $line | awk '{print $1}')"
 			DESTINATION="$(echo $line | awk '{print $2}')"
 			# Compute the PREFIX2NEXTHOPS table to associate names to IP next hops
 			PREFIX2NEXTHOPS["$NAME"]="${PREFIX2NEXTHOPS["$NAME"]} ${ip2nexthop["$DESTINATION"]}"
