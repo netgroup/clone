@@ -16,7 +16,7 @@ printandexec () {
 
 sortstring () {
 		# sort a list of strings separated by space
-		# also render these unique
+		# also make these unique
 		(
 		for i in $1; do
 				echo $i 
@@ -32,6 +32,17 @@ stripsort () {
 		stripped=$( stripstring "$1" )
 		sorted=$( sortstring "$stripped" )
 		stripstring "$sorted"
+}
+
+isinstringlist () {
+		needle="$1"
+		haystack="$2"
+		for h in $haystack; do
+			if [ "$h" == "$needle" ]; then
+				return 0 #true
+			fi
+		done
+		return 1 #false
 }
 
 main () {
@@ -106,8 +117,13 @@ main () {
 			NAME="$(echo $line | awk '{print $1}')"
 			[ "${NAME:0:1}" != "/" ] && NAME="/${NAME}"
 			DESTINATION="$(echo $line | awk '{print $2}')"
+			LOCALLYORIGINATED="$(echo $line | awk '{print $3}')"
 			# Compute the PREFIX2NEXTHOPS table to associate names to IP next hops
-			PREFIX2NEXTHOPS["$NAME"]="${PREFIX2NEXTHOPS["$NAME"]} ${ip2nexthop["$DESTINATION"]}"
+			if [ "$LOCALLYORIGINATED" == "N" ]; then
+					PREFIX2NEXTHOPS["$NAME"]="${PREFIX2NEXTHOPS["$NAME"]} ${ip2nexthop["$DESTINATION"]}"
+			else
+					PREFIX2NEXTHOPS["$NAME"]="${PREFIX2NEXTHOPS["$NAME"]} localhost"
+			fi
 		done < <(wget http://127.0.0.1:2012 -O - 2>/dev/null | grep -v "Name" | grep "...")
 
 		# sort the lists of next hops
@@ -138,13 +154,13 @@ main () {
 						done
 						# add to the CCN fib the new nexthops
 						for nh in "${!olsrarray[@]}"; do
-								if [ -z "${ccnarray["$nh"]}" ]; then
+								if [ -z "${ccnarray["$nh"]}" ] && ! isinstringlist "localhost" "$olsrnexthops"; then
 										printandexec $CCNDC add "ccnx:${prefix}" udp ${nh}
 								fi
 						done
 						# delete from the CCN fib the nexthops that aren't there anymore
 						for nh in "${!ccnarray[@]}"; do
-								if [ -z "${olsrarray["$nh"]}" ]; then
+								if [ -z "${olsrarray["$nh"]}" ] || isinstringlist "localhost" "$olsrnexthops"; then
 										printandexec $CCNDC del "ccnx:${prefix}" udp ${nh}
 								fi
 						done
