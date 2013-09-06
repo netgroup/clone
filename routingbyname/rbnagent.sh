@@ -56,13 +56,13 @@ main () {
 								face2nexthop["$facenumber"]="$nexthop"
 						fi
 				elif (( $forwarding )); then
-						if [ "${firstword:0:6}" != "ccnx:/" ]; then
+						if [ "${firstword:0:5}" != "ccnx:" ]; then
 								forwarding=0 #false
 						else
-								prefix="${firstword:6}"
+								prefix="${firstword:5}"
 								face=$(echo $line | grep -o "face: [^ ]*" | awk '{print $2}')
 								# ignore "system" entries
-								if [ "$face" != "0" ] && [ "${prefix:0:2}" != '%C' ] && [ "${prefix:0:9}" != 'ccnx.org/' ]; then
+								if [ "$face" != "0" ] && [ "${prefix:0:3}" != '/%C' ] && [ "${prefix:0:10}" != '/ccnx.org/' ]; then
 										nexthop="${face2nexthop["$face"]}"
 										# append the next hop
 										CURRENTFIB["$prefix"]="${CURRENTFIB["$prefix"]} $nexthop"
@@ -104,6 +104,7 @@ main () {
 		# Read names from olsrd CCNinfo plug-in
 		while read line; do
 			NAME="$(echo $line | awk '{print $1}')"
+			[ "${NAME:0:1}" != "/" ] && NAME="/${NAME}"
 			DESTINATION="$(echo $line | awk '{print $2}')"
 			# Compute the PREFIX2NEXTHOPS table to associate names to IP next hops
 			PREFIX2NEXTHOPS["$NAME"]="${PREFIX2NEXTHOPS["$NAME"]} ${ip2nexthop["$DESTINATION"]}"
@@ -138,13 +139,13 @@ main () {
 						# add to the CCN fib the new nexthops
 						for nh in "${!olsrarray[@]}"; do
 								if [ -z "${ccnarray["$nh"]}" ]; then
-										printandexec $CCNDC add "ccnx:/${prefix}" udp ${nh}
+										printandexec $CCNDC add "ccnx:${prefix}" udp ${nh}
 								fi
 						done
 						# delete from the CCN fib the nexthops that aren't there anymore
 						for nh in "${!ccnarray[@]}"; do
 								if [ -z "${olsrarray["$nh"]}" ]; then
-										printandexec $CCNDC del "ccnx:/${prefix}" udp ${nh}
+										printandexec $CCNDC del "ccnx:${prefix}" udp ${nh}
 								fi
 						done
 						unset ccnarray
@@ -157,7 +158,7 @@ main () {
 				if [ -z "$olsrnexthops" ]; then
 						# this destination does not exist anymore. Remove it
 						for nh in $fibnexthops; do
-								printandexec $CCNDC del "ccnx:/${prefix}" udp ${nh}
+								printandexec $CCNDC del "ccnx:${prefix}" udp ${nh}
 						done
 				fi
 		done
