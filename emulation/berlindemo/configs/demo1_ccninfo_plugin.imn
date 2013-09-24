@@ -1,0 +1,136 @@
+node n1 {
+    type wlan
+    network-config {
+	hostname wlan1
+	!
+	interface wireless
+	 ip address 10.0.0.0/32
+	 ipv6 address 2001:0::0/128
+	!
+	mobmodel
+	coreapi
+	basic_range
+	!
+    }
+    custom-config {
+	custom-config-id basic_range
+	custom-command {3 3 9 9 9}
+	config {
+	range=275
+	bandwidth=54000000
+	jitter=0
+	delay=20000
+	error=0
+	}
+    }
+    canvas c1
+    iconcoords {450.0 128.0}
+    labelcoords {450.0 160.0}
+    interface-peer {e0 n2}
+    interface-peer {e1 n3}
+    interface-peer {e2 n4}
+    interface-peer {e3 n5}
+}
+
+node n2 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname n2
+	!
+	interface eth0
+	 ip address 10.0.0.1/24
+	!
+    }
+    canvas c1
+    iconcoords {279.0 252.0}
+    labelcoords {279.0 284.0}
+    interface-peer {eth0 n1}
+}
+
+node n3 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname n3
+	!
+	interface eth0
+	 ip address 10.0.0.2/24
+	!
+    }
+    canvas c1
+    iconcoords {443.0 257.0}
+    labelcoords {443.0 289.0}
+    interface-peer {eth0 n1}
+}
+
+node n4 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname n4
+	!
+	interface eth0
+	 ip address 10.0.0.3/24
+	!
+    }
+    canvas c1
+    iconcoords {593.0 205.0}
+    labelcoords {593.0 237.0}
+    interface-peer {eth0 n1}
+}
+
+node n5 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname n5
+	!
+	interface eth0
+	 ip address 10.0.0.4/24
+	!
+    }
+    canvas c1
+    iconcoords {601.0 339.0}
+    labelcoords {601.0 371.0}
+    interface-peer {eth0 n1}
+}
+
+link l1 {
+    nodes {n1 n2}
+}
+
+link l2 {
+    nodes {n1 n3}
+}
+
+link l3 {
+    nodes {n1 n4}
+}
+
+link l4 {
+    nodes {n1 n5}
+}
+
+canvas c1 {
+    name {Canvas1}
+}
+
+option global {
+    interface_names no
+    ip_addresses yes
+    ipv6_addresses yes
+    node_labels yes
+    link_labels yes
+    ipsec_configs yes
+    exec_errors yes
+    show_api no
+    background_images no
+    annotations yes
+    grid yes
+    traffic_start 0
+}
+
+option session {
+}
+
