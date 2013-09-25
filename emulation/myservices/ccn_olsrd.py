@@ -106,6 +106,7 @@ export CCND_KEYSTORE_DIRECTORY="/tmp/ccnd.keystore.%(nodename)s"
 export CCND_LOG="/tmp/ccnd.%(nodename)s.log"
 export RBN_DIR=%(rbn_dir)s
 export OLSR_INTERFACE="eth0"
+export OLSR_INTERFACE2="eth1"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$OLSRD_DIR/lib/ccninfo:$OLSRD_DIR/lib/txtinfo:$OLSRD_DIR/lib/jsoninfo
 
 printandexec() {
@@ -129,21 +130,33 @@ is_hna_node() {
     fi
 }
 
+has_olsr_wired_node() {
+    if ip address show | grep "10\.200\."; then
+        return 0   #true
+    else
+        return 1   #false
+    fi
+}
+
+make_interface_broadcast () {
+    TARGET_INTERFACE="$1"
+    # take interface's IP address and compute broadcast address
+    ETH_IP=$(ip -4 addr show dev ${TARGET_INTERFACE} | grep "inet " | awk '{print $2}' | cut -d "/" -f 1)
+    ETH_MASK=$(ip -4 addr show dev ${TARGET_INTERFACE} | grep "inet " | awk '{print $2}' | cut -d "/" -f 2)
+    BRD_IP=$(ipcalc ${ETH_IP}/${ETH_MASK} | grep Broadcast | awk '{print $2}')
+
+    # take IP addresses and delete them from the interface
+    printandexec ip addr del ${ETH_IP}/${ETH_MASK} dev ${TARGET_INTERFACE}
+
+    # add the broadcast address to eth0 (assuming /16 !!! FIXME !!!)
+    printandexec ip addr add ${ETH_IP}/${ETH_MASK} brd ${BRD_IP} dev ${TARGET_INTERFACE}
+}
+
 olsrstart() {
     # we don't need no IPv6
     echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
 
-    # take eth0's IP address and compute broadcast address
-    ETH0_IP=$(ip -4 addr show dev ${OLSR_INTERFACE} | grep "inet " | awk '{print $2}' | cut -d "/" -f 1)
-    ETH_MASK=$(ip -4 addr show dev ${OLSR_INTERFACE} | grep "inet " | awk '{print $2}' | cut -d "/" -f 2)
-    # broadcast IP address (assuming /16 !!! FIXME!!!)
-    BRD_IP=$(echo $ETH0_IP | awk 'BEGIN {FS="."} {print $1 "." $2 ".255.255"}')
-
-    # take IP addresses and delete them from the interface
-    printandexec ip addr del ${ETH0_IP}/${ETH_MASK} dev ${OLSR_INTERFACE}
-
-    # add the broadcast address to eth0 (assuming /16 !!! FIXME !!!)
-    printandexec ip addr add ${ETH0_IP}/16 brd ${BRD_IP} dev ${OLSR_INTERFACE}
+    make_interface_broadcast eth0
 
     #generate an olsrd.conf on the fly
     cat - > olsrd.conf << EOF
@@ -167,7 +180,7 @@ LoadPlugin "olsrd_ccninfo.so.0.1"
 
     # ip address that can access the plugin, use "0.0.0.0"
     # to allow everyone
-    PlParam     "Accept"   "127.0.0.1"
+    PlParam     "Accept"   "0.0.0.0"
 
     # CCN message emission interval in seconds, default 5
     PlParam     "interval" "5" 
@@ -179,12 +192,22 @@ LoadPlugin "olsrd_ccninfo.so.0.1"
     #PlParam     "name"   "uniroma2.it"
     #PlParam     "name"   "wikipedia.org"
 }
+EOF
 
+    if has_olsr_wired_node; then
+        make_interface_broadcast eth1
+        cat - >> olsrd.conf << EOF
+Interface "$OLSR_INTERFACE" "$OLSR_INTERFACE2"
+{
+}
+EOF
+    else
+        cat - >> olsrd.conf << EOF
 Interface "$OLSR_INTERFACE"
 {
 }
-
 EOF
+    fi
 
     if is_gateway; then
         # add a default Hna4 to olsrd.conf
@@ -210,6 +233,7 @@ Hna4
 {
     ${HNA_NET} 255.255.255.0
 }
+
 EOF
     fi
 
