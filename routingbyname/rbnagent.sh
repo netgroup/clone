@@ -119,10 +119,10 @@ main () {
 			DESTINATION="$(echo $line | awk '{print $2}')"
 			LOCALLYORIGINATED="$(echo $line | awk '{print $3}')"
 			# Compute the PREFIX2NEXTHOPS table to associate names to IP next hops
-			if [ "$LOCALLYORIGINATED" == "N" ]; then
-					PREFIX2NEXTHOPS["$NAME"]="${PREFIX2NEXTHOPS["$NAME"]} ${ip2nexthop["$DESTINATION"]}"
-			else
+			if [ "$LOCALLYORIGINATED" == "Y" ]; then
 					PREFIX2NEXTHOPS["$NAME"]="${PREFIX2NEXTHOPS["$NAME"]} localhost"
+			else
+					PREFIX2NEXTHOPS["$NAME"]="${PREFIX2NEXTHOPS["$NAME"]} ${ip2nexthop["$DESTINATION"]}"
 			fi
 		done < <(wget http://127.0.0.1:2012 -O - 2>/dev/null | grep -v "Name" | grep "...")
 
