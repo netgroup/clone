@@ -12,8 +12,8 @@ node n1 {
 	!
     }
     canvas c1
-    iconcoords {162.0 166.0}
-    labelcoords {162.0 198.0}
+    iconcoords {376.0 112.0}
+    labelcoords {376.0 144.0}
     interface-peer {eth0 n9}
     interface-peer {eth1 n8}
 }
@@ -24,14 +24,18 @@ node n2 {
     network-config {
 	hostname n2
 	!
+	interface eth1
+	 ip address 10.100.5.1/24
+	!
 	interface eth0
 	 ip address 10.0.0.2/16
 	!
     }
     canvas c1
-    iconcoords {319.0 61.0}
-    labelcoords {319.0 93.0}
+    iconcoords {469.0 241.0}
+    labelcoords {469.0 273.0}
     interface-peer {eth0 n9}
+    interface-peer {eth1 n10}
 }
 
 node n3 {
@@ -41,17 +45,17 @@ node n3 {
 	hostname n3
 	!
 	interface eth1
-	 ip address 10.100.100.1/24
+	 ip address 10.100.3.1/24
 	!
 	interface eth0
 	 ip address 10.0.0.3/16
 	!
     }
     canvas c1
-    iconcoords {512.0 273.0}
-    labelcoords {512.0 305.0}
+    iconcoords {226.0 201.0}
+    labelcoords {226.0 233.0}
     interface-peer {eth0 n9}
-    interface-peer {eth1 n10}
+    interface-peer {eth1 n11}
 }
 
 node n4 {
@@ -61,15 +65,15 @@ node n4 {
 	hostname n4
 	!
 	interface eth1
-	 ip address 10.100.2.1/24
+	 ip address 10.200.2.1/24
 	!
 	interface eth0
 	 ip address 10.0.0.4/16
 	!
     }
     canvas c1
-    iconcoords {464.0 151.0}
-    labelcoords {464.0 183.0}
+    iconcoords {461.0 163.0}
+    labelcoords {461.0 195.0}
     interface-peer {eth0 n9}
     interface-peer {eth1 n6}
 }
@@ -81,15 +85,15 @@ node n5 {
 	hostname n5
 	!
 	interface eth1
-	 ip address 10.100.3.1/24
+	 ip address 10.200.4.1/24
 	!
 	interface eth0
 	 ip address 10.0.0.5/16
 	!
     }
     canvas c1
-    iconcoords {286.0 278.0}
-    labelcoords {286.0 310.0}
+    iconcoords {278.0 275.0}
+    labelcoords {278.0 307.0}
     interface-peer {eth0 n9}
     interface-peer {eth1 n7}
 }
@@ -98,49 +102,49 @@ node n6 {
     type router
     model host
     network-config {
-	hostname s6
+	hostname repository1
 	!
 	interface eth0
-	 ip address 10.100.2.10/24
+	 ip address 10.200.2.10/24
 	!
     }
     canvas c1
-    iconcoords {591.0 74.0}
-    labelcoords {591.0 106.0}
+    iconcoords {521.3333333333334 70.0}
+    labelcoords {521.3333333333334 102.0}
     interface-peer {eth0 n4}
-    services {CCNRService CcnOlsrService}
+    services {DefaultRoute CCNService}
 }
 
 node n7 {
     type router
     model host
     network-config {
-	hostname s7
+	hostname repository2
 	!
 	interface eth0
-	 ip address 10.100.3.10/24
+	 ip address 10.200.4.10/24
 	!
     }
     canvas c1
-    iconcoords {182.0 328.0}
-    labelcoords {182.0 360.0}
+    iconcoords {151.0 332.0}
+    labelcoords {151.0 364.0}
+    services {DefaultRoute CCNService}
     interface-peer {eth0 n5}
-    services {DefaultRoute CCNRService CcnOlsrService}
 }
 
 node n8 {
     type router
     model PC
     network-config {
-	hostname c8
+	hostname client1
 	!
 	interface eth0
 	 ip address 10.100.1.20/24
 	!
     }
     canvas c1
-    iconcoords {37.0 212.0}
-    labelcoords {37.0 244.0}
+    iconcoords {257.0 44.0}
+    labelcoords {257.0 76.0}
     interface-peer {eth0 n1}
 }
 
@@ -162,7 +166,7 @@ node n9 {
 	custom-config-id basic_range
 	custom-command {3 3 9 9 9}
 	config {
-	range=220.58823529411765
+	range=124.41176470588235
 	bandwidth=54000000
 	jitter=0
 	delay=20000
@@ -170,29 +174,79 @@ node n9 {
 	}
     }
     canvas c1
-    iconcoords {409.0 48.0}
-    labelcoords {409.0 80.0}
+    iconcoords {421.6666666666667 39.333333333333336}
+    labelcoords {421.6666666666667 71.33333333333333}
     interface-peer {e0 n1}
     interface-peer {e1 n2}
     interface-peer {e2 n3}
     interface-peer {e3 n4}
     interface-peer {e4 n5}
+    interface-peer {e5 n12}
+    interface-peer {e6 n13}
+}
+
+node n11 {
+    type router
+    model PC
+    network-config {
+	hostname client2
+	!
+	interface eth0
+	 ip address 10.100.3.20/24
+	!
+    }
+    canvas c1
+    iconcoords {122.0 142.0}
+    labelcoords {122.0 174.0}
+    interface-peer {eth0 n3}
 }
 
 node n10 {
     type router
-    model host
+    model PC
     network-config {
-	hostname s10
+	hostname client3
 	!
 	interface eth0
-	 ip address 10.100.100.10/24
+	 ip address 10.100.5.20/24
 	!
     }
     canvas c1
-    iconcoords {670.0 339.0}
-    labelcoords {670.0 371.0}
-    interface-peer {eth0 n3}
+    iconcoords {515.0 336.0}
+    labelcoords {515.0 368.0}
+    interface-peer {eth0 n2}
+}
+
+node n12 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname n6
+	!
+	interface eth0
+	 ip address 10.0.0.6/16
+	!
+    }
+    canvas c1
+    iconcoords {332.0 178.0}
+    labelcoords {332.0 210.0}
+    interface-peer {eth0 n9}
+}
+
+node n13 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname n7
+	!
+	interface eth0
+	 ip address 10.0.0.7/16
+	!
+    }
+    canvas c1
+    iconcoords {387.0 281.0}
+    labelcoords {387.0 313.0}
+    interface-peer {eth0 n9}
 }
 
 link l1 {
@@ -225,38 +279,27 @@ link l7 {
     bandwidth 0
 }
 
-link l8 {
-    nodes {n5 n7}
-    bandwidth 0
-}
-
 link l9 {
-    nodes {n10 n3}
+    nodes {n10 n2}
     bandwidth 0
 }
 
-annotation a1 {
-    iconcoords {702.0 342.0}
-    type text
-    label {external web server}
-    labelcolor black
-    fontfamily {Arial}
-    fontsize 12
-    effects {bold}
-    canvas c1
+link l8 {
+    nodes {n7 n5}
+    bandwidth 0
 }
 
-annotation a2 {
-    iconcoords {19.0 17.0 685.0 369.0}
-    type oval
-    label {}
-    labelcolor black
-    fontfamily {Arial}
-    fontsize 12
-    color #ffffff
-    width 2
-    border #3448ff
-    canvas c1
+link l10 {
+    nodes {n11 n3}
+    bandwidth 0
+}
+
+link l11 {
+    nodes {n9 n12}
+}
+
+link l12 {
+    nodes {n9 n13}
 }
 
 canvas c1 {
