@@ -2,6 +2,7 @@
 
 #DEBUG=1 #true
 DEBUG=0 #false
+SHORTESTPATH=1
 CCN_DIR=/home/clauz/clone-git/ccnx
 NAMESFILE=HttpProxy.list
 CCNDC="$CCN_DIR/bin/ccndc -t 3600"
@@ -51,7 +52,9 @@ main () {
 		declare -A CURRENTFIB			# ccndstatus: CCN prefix --> nexthop
 		# arrays holding info from OLSR
 		declare -A ip2nexthop			# txtinfo: IP destination --> nexthop
+		declare -A ip2etx				# txtinfo: IP destination --> ETX
 		declare -A PREFIX2NEXTHOPS		# CCN prefix --> nexthop
+		declare -A PREFIX2DESTINATION	# CCN prefix --> destination (for shortest path only)
 
 		# Get and parse the current CCN FIB
 		faces=0 #false
@@ -103,12 +106,14 @@ main () {
 		while read line; do
 			DESTINATION="$(echo $line | awk '{print $1}' | cut -d "/" -f 1 )"
 			NEXTHOP="$(echo $line | awk '{print $2}')"
+			ETX="$(echo $line | awk '{print $4}' | sed 's/\.//')"
 			ip2nexthop["${DESTINATION}"]="$NEXTHOP"
+			ip2etx["${DESTINATION}"]="$ETX"
 		done < <(wget http://127.0.0.1:2006/route -O - 2>/dev/null | grep -v "Table" | grep -v "Destination" | grep "...")
 
 		if (( $DEBUG )); then
 				for k in "${!ip2nexthop[@]}"; do
-						echo "$k --> ${ip2nexthop[$k]}"
+						echo "$k --> ${ip2nexthop[$k]} ${ip2etx[$k]}"
 				done
 		fi
 
@@ -119,10 +124,28 @@ main () {
 			DESTINATION="$(echo $line | awk '{print $2}')"
 			LOCALLYORIGINATED="$(echo $line | awk '{print $3}')"
 			# Compute the PREFIX2NEXTHOPS table to associate names to IP next hops
-			if [ "$LOCALLYORIGINATED" == "Y" ]; then
-					PREFIX2NEXTHOPS["$NAME"]="${PREFIX2NEXTHOPS["$NAME"]} localhost"
+			if [ "$SHORTESTPATH" == 1 ]; then
+				oldestination="${PREFIX2DESTINATION["$NAME"]}"
+				if [ -z "$oldestination" ]; then
+						PREFIX2NEXTHOPS["$NAME"]=${ip2nexthop["$DESTINATION"]}
+						PREFIX2DESTINATION["$NAME"]="$DESTINATION"
+				else
+						[ $DEBUG == 1 ] && echo ${ip2etx["$DESTINATION"]} "-lt" ${ip2etx["$oldestination"]}
+						if [ ${ip2etx["$DESTINATION"]} -lt ${ip2etx["$oldestination"]} ]; then
+								if [ "$LOCALLYORIGINATED" == "Y" ]; then
+										PREFIX2NEXTHOPS["$NAME"]="localhost"
+								else
+										PREFIX2NEXTHOPS["$NAME"]=${ip2nexthop["$DESTINATION"]}
+								fi
+								PREFIX2DESTINATION["$NAME"]="$DESTINATION"
+						fi
+				fi
 			else
-					PREFIX2NEXTHOPS["$NAME"]="${PREFIX2NEXTHOPS["$NAME"]} ${ip2nexthop["$DESTINATION"]}"
+				if [ "$LOCALLYORIGINATED" == "Y" ]; then
+						PREFIX2NEXTHOPS["$NAME"]="${PREFIX2NEXTHOPS["$NAME"]} localhost"
+				else
+						PREFIX2NEXTHOPS["$NAME"]="${PREFIX2NEXTHOPS["$NAME"]} ${ip2nexthop["$DESTINATION"]}"
+				fi
 			fi
 		done < <(wget http://127.0.0.1:2012 -O - 2>/dev/null | grep -v "Name" | grep "...")
 
