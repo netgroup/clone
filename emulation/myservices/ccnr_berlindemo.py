@@ -76,6 +76,7 @@ start() {
 	$CCNX_DIR/bin/ccnr > ~/ccnrb.log 2>&1 &
     wget -q -O - http://127.0.0.1:2012/reg/add/CommunityCCN/http/penguins.com
     wget -q -O - http://127.0.0.1:2012/reg/add/CommunityCCN/http/penguins.org
+    wget -q -O - http://127.0.0.1:2012/reg/add/CommunityCCN/http/confinedemo.org
 }
 
 stop() {

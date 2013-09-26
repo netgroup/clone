@@ -71,7 +71,9 @@ export HOME=$PWD
 
 start() {
     sleep 15
-	$CCNX_DIR/apps/HttpProxy/HttpProxy -custom ~/HttpProxy.list -resolveHigh > ~/ccnproxy.log 2>&1 &
+    ( while [ 1 ]; do 
+            $CCNX_DIR/apps/HttpProxy/HttpProxy -custom ~/HttpProxy.list -resolveHigh > ~/ccnproxy.log 2>&1 
+    done ) &
 }
 
 stop() {
