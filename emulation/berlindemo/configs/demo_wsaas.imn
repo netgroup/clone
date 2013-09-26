@@ -16,6 +16,7 @@ node n1 {
     labelcoords {376.0 144.0}
     interface-peer {eth0 n9}
     interface-peer {eth1 n8}
+    services {IPForward CcnOlsrService CCNProxyService}
 }
 
 node n2 {
@@ -36,6 +37,7 @@ node n2 {
     labelcoords {469.0 273.0}
     interface-peer {eth0 n9}
     interface-peer {eth1 n10}
+    services {IPForward CcnOlsrService CCNProxyService}
 }
 
 node n3 {
@@ -56,6 +58,7 @@ node n3 {
     labelcoords {226.0 233.0}
     interface-peer {eth0 n9}
     interface-peer {eth1 n11}
+    services {IPForward CcnOlsrService CCNProxyService}
 }
 
 node n4 {
@@ -112,7 +115,7 @@ node n6 {
     iconcoords {521.3333333333334 70.0}
     labelcoords {521.3333333333334 102.0}
     interface-peer {eth0 n4}
-    services {DefaultRoute CCNService}
+    services {CcnOlsrService CCNrBerlinService}
 }
 
 node n7 {
@@ -128,7 +131,7 @@ node n7 {
     canvas c1
     iconcoords {151.0 332.0}
     labelcoords {151.0 364.0}
-    services {DefaultRoute CCNService}
+    services {CcnOlsrService CCNrBerlinService}
     interface-peer {eth0 n5}
 }
 
