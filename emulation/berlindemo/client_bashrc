@@ -1,0 +1,2 @@
+export http_proxy="http://$(ip route sh | grep default | awk '{print $3}'):8080"
+alias firefox='firefox -new-instance -new-window'
