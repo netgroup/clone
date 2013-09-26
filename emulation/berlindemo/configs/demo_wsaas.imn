@@ -12,8 +12,8 @@ node n1 {
 	!
     }
     canvas c1
-    iconcoords {376.0 112.0}
-    labelcoords {376.0 144.0}
+    iconcoords {446.0 93.0}
+    labelcoords {446.0 125.0}
     interface-peer {eth0 n9}
     interface-peer {eth1 n8}
     services {IPForward CcnOlsrService CCNProxyService}
@@ -33,8 +33,8 @@ node n2 {
 	!
     }
     canvas c1
-    iconcoords {469.0 241.0}
-    labelcoords {469.0 273.0}
+    iconcoords {274.0 265.0}
+    labelcoords {274.0 297.0}
     interface-peer {eth0 n9}
     interface-peer {eth1 n10}
     services {IPForward CcnOlsrService CCNProxyService}
@@ -54,8 +54,8 @@ node n3 {
 	!
     }
     canvas c1
-    iconcoords {226.0 201.0}
-    labelcoords {226.0 233.0}
+    iconcoords {229.0 204.0}
+    labelcoords {229.0 236.0}
     interface-peer {eth0 n9}
     interface-peer {eth1 n11}
     services {IPForward CcnOlsrService CCNProxyService}
@@ -75,8 +75,8 @@ node n4 {
 	!
     }
     canvas c1
-    iconcoords {461.0 163.0}
-    labelcoords {461.0 195.0}
+    iconcoords {514.0 98.0}
+    labelcoords {514.0 130.0}
     interface-peer {eth0 n9}
     interface-peer {eth1 n6}
 }
@@ -95,8 +95,8 @@ node n5 {
 	!
     }
     canvas c1
-    iconcoords {278.0 275.0}
-    labelcoords {278.0 307.0}
+    iconcoords {329.0 317.0}
+    labelcoords {329.0 349.0}
     interface-peer {eth0 n9}
     interface-peer {eth1 n7}
 }
@@ -112,8 +112,8 @@ node n6 {
 	!
     }
     canvas c1
-    iconcoords {521.3333333333334 70.0}
-    labelcoords {521.3333333333334 102.0}
+    iconcoords {604.3333333333334 41.0}
+    labelcoords {604.3333333333334 73.0}
     interface-peer {eth0 n4}
     services {CcnOlsrService CCNrBerlinService}
 }
@@ -129,8 +129,8 @@ node n7 {
 	!
     }
     canvas c1
-    iconcoords {151.0 332.0}
-    labelcoords {151.0 364.0}
+    iconcoords {230.0 379.0}
+    labelcoords {230.0 411.0}
     services {CcnOlsrService CCNrBerlinService}
     interface-peer {eth0 n5}
 }
@@ -146,8 +146,8 @@ node n8 {
 	!
     }
     canvas c1
-    iconcoords {257.0 44.0}
-    labelcoords {257.0 76.0}
+    iconcoords {325.0 39.0}
+    labelcoords {325.0 71.0}
     interface-peer {eth0 n1}
 }
 
@@ -177,8 +177,8 @@ node n9 {
 	}
     }
     canvas c1
-    iconcoords {421.6666666666667 39.333333333333336}
-    labelcoords {421.6666666666667 71.33333333333333}
+    iconcoords {476.66666666666674 29.333333333333336}
+    labelcoords {476.66666666666674 61.33333333333333}
     interface-peer {e0 n1}
     interface-peer {e1 n2}
     interface-peer {e2 n3}
@@ -186,6 +186,8 @@ node n9 {
     interface-peer {e4 n5}
     interface-peer {e5 n12}
     interface-peer {e6 n13}
+    interface-peer {e7 n14}
+    interface-peer {e8 n15}
 }
 
 node n11 {
@@ -199,8 +201,8 @@ node n11 {
 	!
     }
     canvas c1
-    iconcoords {122.0 142.0}
-    labelcoords {122.0 174.0}
+    iconcoords {152.0 133.0}
+    labelcoords {152.0 165.0}
     interface-peer {eth0 n3}
 }
 
@@ -215,8 +217,8 @@ node n10 {
 	!
     }
     canvas c1
-    iconcoords {515.0 336.0}
-    labelcoords {515.0 368.0}
+    iconcoords {117.0 300.0}
+    labelcoords {117.0 332.0}
     interface-peer {eth0 n2}
 }
 
@@ -231,8 +233,8 @@ node n12 {
 	!
     }
     canvas c1
-    iconcoords {332.0 178.0}
-    labelcoords {332.0 210.0}
+    iconcoords {376.0 130.0}
+    labelcoords {376.0 162.0}
     interface-peer {eth0 n9}
 }
 
@@ -247,8 +249,40 @@ node n13 {
 	!
     }
     canvas c1
-    iconcoords {387.0 281.0}
-    labelcoords {387.0 313.0}
+    iconcoords {304.0 163.0}
+    labelcoords {304.0 195.0}
+    interface-peer {eth0 n9}
+}
+
+node n14 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname n14
+	!
+	interface eth0
+	 ip address 10.0.0.8/16
+	!
+    }
+    canvas c1
+    iconcoords {404.0 230.0}
+    labelcoords {404.0 262.0}
+    interface-peer {eth0 n9}
+}
+
+node n15 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname n15
+	!
+	interface eth0
+	 ip address 10.0.0.9/16
+	!
+    }
+    canvas c1
+    iconcoords {507.0 203.0}
+    labelcoords {507.0 235.0}
     interface-peer {eth0 n9}
 }
 
@@ -303,6 +337,14 @@ link l11 {
 
 link l12 {
     nodes {n9 n13}
+}
+
+link l13 {
+    nodes {n9 n14}
+}
+
+link l14 {
+    nodes {n9 n15}
 }
 
 canvas c1 {
