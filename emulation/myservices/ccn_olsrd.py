@@ -186,7 +186,7 @@ LoadPlugin "olsrd_ccninfo.so.0.1"
     PlParam     "interval" "5" 
 
     # CCN message validity time in seconds, default 200
-    PlParam     "vtime" "60"
+    PlParam     "vtime" "30"
 
     # sequence of names to be announced, a separate "name" parameter for each name
     #PlParam     "name"   "uniroma2.it"
