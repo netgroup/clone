@@ -9,8 +9,8 @@ node n1 {
 	!
     }
     canvas c1
-    iconcoords {100.0 111.66666666666666}
-    labelcoords {100.0 143.66666666666666}
+    iconcoords {53.0 105.66666666666666}
+    labelcoords {53.0 137.66666666666666}
     custom-image /usr/lib/core/icons/normal/host.gif
     interface-peer {eth0 n2}
     services {IPForward CcnOlsrService CCNrBerlinService}
@@ -30,8 +30,8 @@ node n2 {
 	!
     }
     canvas c1
-    iconcoords {286.33333333333337 70.0}
-    labelcoords {286.33333333333337 102.0}
+    iconcoords {232.33333333333337 163.0}
+    labelcoords {232.33333333333337 195.0}
     interface-peer {eth0 n10}
     interface-peer {eth1 n1}
 }
@@ -50,8 +50,8 @@ node n3 {
 	!
     }
     canvas c1
-    iconcoords {284.33333333333337 270.0}
-    labelcoords {284.33333333333337 302.0}
+    iconcoords {223.33333333333337 313.0}
+    labelcoords {223.33333333333337 345.0}
     interface-peer {eth0 n10}
     interface-peer {eth1 n8}
 }
@@ -67,8 +67,8 @@ node n4 {
 	!
     }
     canvas c1
-    iconcoords {286.0 163.0}
-    labelcoords {286.0 195.0}
+    iconcoords {230.0 234.0}
+    labelcoords {230.0 266.0}
     interface-peer {eth0 n10}
 }
 
@@ -83,8 +83,8 @@ node n5 {
 	!
     }
     canvas c1
-    iconcoords {52.0 301.66666666666674}
-    labelcoords {52.0 333.66666666666674}
+    iconcoords {56.0 330.66666666666674}
+    labelcoords {56.0 362.66666666666674}
     custom-image /usr/lib/core/icons/normal/host.gif
     interface-peer {eth0 n7}
     services {IPForward CcnOlsrService CCNrBerlinService}
@@ -104,8 +104,8 @@ node n6 {
 	!
     }
     canvas c1
-    iconcoords {285.0 367.0}
-    labelcoords {285.0 399.0}
+    iconcoords {196.0 375.0}
+    labelcoords {196.0 407.0}
     interface-peer {eth0 n10}
     interface-peer {eth1 n9}
 }
@@ -124,8 +124,8 @@ node n7 {
 	!
     }
     canvas c1
-    iconcoords {167.0 397.33333333333326}
-    labelcoords {167.0 429.33333333333326}
+    iconcoords {149.0 436.33333333333326}
+    labelcoords {149.0 468.33333333333326}
     interface-peer {eth0 n10}
     interface-peer {eth1 n5}
 }
@@ -141,8 +141,8 @@ node n8 {
 	!
     }
     canvas c1
-    iconcoords {451.0 237.33333333333326}
-    labelcoords {451.0 269.33333333333326}
+    iconcoords {385.0 278.33333333333326}
+    labelcoords {385.0 310.33333333333326}
     interface-peer {eth0 n3}
     services {DefaultRoute CCNService}
 }
@@ -158,8 +158,8 @@ node n9 {
 	!
     }
     canvas c1
-    iconcoords {464.6666666666667 337.0}
-    labelcoords {464.6666666666667 369.0}
+    iconcoords {403.6666666666667 350.0}
+    labelcoords {403.6666666666667 382.0}
     interface-peer {eth0 n6}
     services {DefaultRoute CCNService}
 }
@@ -184,9 +184,9 @@ node n10 {
 	config {
 	range=132.3529411764706
 	bandwidth=54000000
-	jitter=0
+	jitter=160
 	delay=1000
-	error=0
+	error=1.0
 	}
     }
     canvas c1
@@ -220,8 +220,9 @@ link l5 {
 }
 
 link l6 {
+    delay 160
     nodes {n2 n1}
-    bandwidth 0
+    bandwidth 10000000
 }
 
 link l7 {
@@ -230,8 +231,9 @@ link l7 {
 }
 
 link l8 {
+    delay 160
     nodes {n7 n5}
-    bandwidth 0
+    bandwidth 10000000
 }
 
 link l9 {
