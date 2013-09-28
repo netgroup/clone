@@ -130,13 +130,12 @@ main () {
 						PREFIX2NEXTHOPS["$NAME"]=${ip2nexthop["$DESTINATION"]}
 						PREFIX2DESTINATION["$NAME"]="$DESTINATION"
 				else
-						[ $DEBUG == 1 ] && echo ${ip2etx["$DESTINATION"]} "-lt" ${ip2etx["$oldestination"]}
-						if [ ${ip2etx["$DESTINATION"]} -lt ${ip2etx["$oldestination"]} ]; then
-								if [ "$LOCALLYORIGINATED" == "Y" ]; then
-										PREFIX2NEXTHOPS["$NAME"]="localhost"
-								else
-										PREFIX2NEXTHOPS["$NAME"]=${ip2nexthop["$DESTINATION"]}
-								fi
+						[ $DEBUG == 1 ] && echo $DESTINATION "->" $oldestination ":" ${ip2etx["$DESTINATION"]} "-lt" ${ip2etx["$oldestination"]}
+						if [ "$LOCALLYORIGINATED" == "Y" ]; then
+								PREFIX2NEXTHOPS["$NAME"]="localhost"
+								PREFIX2DESTINATION["$NAME"]="$DESTINATION"
+						elif [ "${ip2etx["$DESTINATION"]}" -lt "${ip2etx["$oldestination"]}" ]; then
+								PREFIX2NEXTHOPS["$NAME"]=${ip2nexthop["$DESTINATION"]}
 								PREFIX2DESTINATION["$NAME"]="$DESTINATION"
 						fi
 				fi
