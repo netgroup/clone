@@ -88,6 +88,10 @@ export CCND_LOG="/tmp/ccnd.%s.log"
 start() {
     mkdir $CCND_KEYSTORE_DIRECTORY
 	$CCNX_DIR/bin/ccndstart
+    if [ ${HOSTNAME:0:6} == "client" ]; then
+        sleep 2
+        $CCNX_DIR/bin/ccndc add -t 3600 ccnx:/ udp $(ip route sh | grep default | awk '{print $3}')
+    fi
 }
 
 stop() {

@@ -1,0 +1,264 @@
+node n1 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname repository3
+	!
+	interface eth0
+	 ip address 10.200.1.2/24
+	!
+    }
+    canvas c1
+    iconcoords {100.0 111.66666666666666}
+    labelcoords {100.0 143.66666666666666}
+    custom-image /usr/lib/core/icons/normal/host.gif
+    interface-peer {eth0 n2}
+    services {IPForward CcnOlsrService CCNrBerlinService}
+}
+
+node n2 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname n2
+	!
+	interface eth1
+	 ip address 10.200.1.1/24
+	!
+	interface eth0
+	 ip address 10.0.0.1/16
+	!
+    }
+    canvas c1
+    iconcoords {286.33333333333337 70.0}
+    labelcoords {286.33333333333337 102.0}
+    interface-peer {eth0 n10}
+    interface-peer {eth1 n1}
+}
+
+node n3 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname n3
+	!
+	interface eth1
+	 ip address 10.100.2.1/24
+	!
+	interface eth0
+	 ip address 10.0.0.2/16
+	!
+    }
+    canvas c1
+    iconcoords {284.33333333333337 270.0}
+    labelcoords {284.33333333333337 302.0}
+    interface-peer {eth0 n10}
+    interface-peer {eth1 n8}
+}
+
+node n4 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname n4
+	!
+	interface eth0
+	 ip address 10.0.0.3/16
+	!
+    }
+    canvas c1
+    iconcoords {286.0 163.0}
+    labelcoords {286.0 195.0}
+    interface-peer {eth0 n10}
+}
+
+node n5 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname repository4
+	!
+	interface eth0
+	 ip address 10.200.3.2/24
+	!
+    }
+    canvas c1
+    iconcoords {52.0 301.66666666666674}
+    labelcoords {52.0 333.66666666666674}
+    custom-image /usr/lib/core/icons/normal/host.gif
+    interface-peer {eth0 n7}
+    services {IPForward CcnOlsrService CCNrBerlinService}
+}
+
+node n6 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname n6
+	!
+	interface eth1
+	 ip address 10.100.4.1/24
+	!
+	interface eth0
+	 ip address 10.0.0.5/16
+	!
+    }
+    canvas c1
+    iconcoords {285.0 367.0}
+    labelcoords {285.0 399.0}
+    interface-peer {eth0 n10}
+    interface-peer {eth1 n9}
+}
+
+node n7 {
+    type router
+    model ccn-olsr
+    network-config {
+	hostname n7
+	!
+	interface eth1
+	 ip address 10.200.3.1/24
+	!
+	interface eth0
+	 ip address 10.0.0.4/16
+	!
+    }
+    canvas c1
+    iconcoords {167.0 397.33333333333326}
+    labelcoords {167.0 429.33333333333326}
+    interface-peer {eth0 n10}
+    interface-peer {eth1 n5}
+}
+
+node n8 {
+    type router
+    model PC
+    network-config {
+	hostname client1
+	!
+	interface eth0
+	 ip address 10.100.2.20/24
+	!
+    }
+    canvas c1
+    iconcoords {451.0 237.33333333333326}
+    labelcoords {451.0 269.33333333333326}
+    interface-peer {eth0 n3}
+    services {DefaultRoute CCNService}
+}
+
+node n9 {
+    type router
+    model PC
+    network-config {
+	hostname client2
+	!
+	interface eth0
+	 ip address 10.100.4.20/24
+	!
+    }
+    canvas c1
+    iconcoords {464.6666666666667 337.0}
+    labelcoords {464.6666666666667 369.0}
+    interface-peer {eth0 n6}
+    services {DefaultRoute CCNService}
+}
+
+node n10 {
+    type wlan
+    network-config {
+	hostname wlan10
+	!
+	interface wireless
+	 ipv6 address 2001:0::0/128
+	 ip address 10.0.0.0/16
+	!
+	mobmodel
+	coreapi
+	basic_range
+	!
+    }
+    custom-config {
+	custom-config-id basic_range
+	custom-command {3 3 9 9 9}
+	config {
+	range=132.3529411764706
+	bandwidth=54000000
+	jitter=0
+	delay=1000
+	error=0
+	}
+    }
+    canvas c1
+    iconcoords {402.0 68.0}
+    labelcoords {402.0 100.0}
+    interface-peer {e0 n2}
+    interface-peer {e1 n3}
+    interface-peer {e2 n4}
+    interface-peer {e3 n7}
+    interface-peer {e4 n6}
+}
+
+link l1 {
+    nodes {n10 n2}
+}
+
+link l2 {
+    nodes {n10 n3}
+}
+
+link l3 {
+    nodes {n10 n4}
+}
+
+link l4 {
+    nodes {n10 n7}
+}
+
+link l5 {
+    nodes {n10 n6}
+}
+
+link l6 {
+    nodes {n2 n1}
+    bandwidth 0
+}
+
+link l7 {
+    nodes {n3 n8}
+    bandwidth 0
+}
+
+link l8 {
+    nodes {n7 n5}
+    bandwidth 0
+}
+
+link l9 {
+    nodes {n6 n9}
+    bandwidth 0
+}
+
+canvas c1 {
+    name {Canvas1}
+}
+
+option global {
+    interface_names no
+    ip_addresses yes
+    ipv6_addresses yes
+    node_labels yes
+    link_labels yes
+    ipsec_configs yes
+    exec_errors yes
+    show_api no
+    background_images no
+    annotations yes
+    grid yes
+    traffic_start 0
+}
+
+option session {
+    controlnet=172.31.31.0/24
+}
+
