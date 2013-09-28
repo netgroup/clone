@@ -72,12 +72,22 @@ export REPO_DIR=/home/clauz/clone-git/emulation/berlindemo/$HOSTNAME
 
 start() {
     sleep 10
-    cd $REPO_DIR
+    cd $REPO_DIR || ( mkdir -p $REPO_DIR && cd $REPO_DIR )
 	$CCNX_DIR/bin/ccnr > ~/ccnrb.log 2>&1 &
-    wget -q -O - http://127.0.0.1:2012/reg/add/CommunityCCN/http/penguins.com
-    wget -q -O - http://127.0.0.1:2012/reg/add/CommunityCCN/http/penguins.org
-    wget -q -O - http://127.0.0.1:2012/reg/add/CommunityCCN/http/confinedemo.org
-    wget -q -O - http://127.0.0.1:2012/reg/add/tests
+    case $HOSTNAME in
+        repository[12])
+            #wget -q -O - http://127.0.0.1:2012/reg/add/CommunityCCN/http/penguins.com
+            #wget -q -O - http://127.0.0.1:2012/reg/add/CommunityCCN/http/penguins.org
+            #wget -q -O - http://127.0.0.1:2012/reg/add/CommunityCCN/http/confinedemo.org
+            ;;
+        repository3)
+            wget -q -O - http://127.0.0.1:2012/reg/add/tests
+            ;;
+        repository4)
+            wget -q -O - http://127.0.0.1:2012/reg/add/tests
+            wget -q -O - http://127.0.0.1:2012/reg/add/tests2
+            ;;
+    esac
 }
 
 stop() {
