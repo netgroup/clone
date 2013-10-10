@@ -3,10 +3,10 @@
 	url = http://git.confine-project.eu/confine.git
 [submodule "olsrd-ccninfo"]
 	path = olsrd-ccninfo
-	url = git@bitbucket.org:clauz/olsrd-ccninfo.git
+	url = gitosis@git.confine-project.eu:confine/clone/olsrd-ccninfo.git
 [submodule "core-ccn"]
 	path = core-ccn
 	url = git@bitbucket.org:clauz/core-ccn.git
 [submodule "ccnx"]
 	path = ccnx
-	url = git@bitbucket.org:clauz/ccnx.git
+	url = gitosis@git.confine-project.eu:confine/clone/ccnx.git
