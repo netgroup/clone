@@ -2,7 +2,7 @@
 
 #DEBUG=1 #true
 DEBUG=0 #false
-SHORTESTPATH=1
+SHORTESTPATH=0
 CCN_DIR=/home/clauz/clone-git/ccnx
 NAMESFILE=HttpProxy.list
 CCNDC="$CCN_DIR/bin/ccndc -t 3600"
