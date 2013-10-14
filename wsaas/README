@@ -21,7 +21,7 @@ On nodes hosting websites:
 
 On Internet gateway nodes:
  - announce via CCNinfo that the node can reach external domains:
-    wget -q -O - "http://127.0.0.1:2012/reg/add/TestCCN/http"
+    wget -q -O - "http://127.0.0.1:2012/reg/add/CommunityCCN/http"
  - create a caching dir, e.g.
     mkdir /tmp/proxycache
  - go to the ccnx/apps/HttpProxy directory and start NetFetch
